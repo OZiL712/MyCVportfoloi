@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Analytics Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN for visits chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Modern Dark Theme & Glassmorphism Aesthetic */
+        :root {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.5);
+            --danger: #ef4444;
+            --success: #10b981;
+            --purple: #8b5cf6;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Background Glow Effects */
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.4;
+        }
+        .glow-1 { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(56, 189, 248, 0.25); }
+        .glow-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: rgba(139, 92, 246, 0.25); }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(56, 189, 248, 0.2);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .stat-card {
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            background: rgba(56, 189, 248, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            color: var(--accent);
+            margin-right: 1.25rem;
+        }
+        
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+        
+        .stat-info .value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        
+        /* Charts and Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 380px;
+            position: relative;
+        }
+        
+        .table-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .table-controls h3 {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Input Styling */
+        .filter-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 300px;
+            outline: none;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .filter-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+        }
+        
+        /* Table Styling */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.3);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1.25rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+            white-space: nowrap;
+        }
+        
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:last-child td { border-bottom: none; }
+        
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .badge {
+            padding: 0.35rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+        
+        .device-mobile { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .device-desktop { background: rgba(56, 189, 248, 0.2); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        #loading, #status {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+        }
+
+        #status { color: var(--danger); display: none; }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .glass-card {
+                padding: 1rem;
+            }
+            .table-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .filter-input {
+                max-width: 100%;
+            }
+            header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-satellite-dish" style="color: var(--accent);"></i> Live Analytics</h1>
+            <div class="header-right">
+                <span style="color: var(--text-muted); font-size: 0.9rem;">Protected Dashboard</span>
+            </div>
+        </header>
+
+        <div id="loading"><i class="fas fa-spinner fa-spin"></i> Establishing secure connection...</div>
+        <div id="status"><i class="fas fa-exclamation-triangle"></i> Cannot fetch data</div>
+
+        <div id="dashboardApp" style="display:none;">
+            <!-- Key Metrics -->
+            <div class="stats-grid">
+                <div class="glass-card stat-card">
+                    <div class="stat-icon"><i class="fas fa-fingerprint"></i></div>
+                    <div class="stat-info">
+                        <h3>Total Visitors</h3>
+                        <div class="value" id="totalVisits">0</div>
+                    </div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Visits Today</h3>
+                        <div class="value" id="todayVisits">0</div>
+                    </div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-icon" style="background: rgba(139, 92, 246, 0.15); color: var(--purple);">
+                        <i class="fas fa-globe-americas"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Top Origin</h3>
+                        <div class="value" id="topCountry">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <!-- Visits Timeline Chart -->
+                <div class="glass-card">
+                    <div class="table-controls" style="margin-bottom: 0;">
+                        <h3><i class="fas fa-chart-area" style="color: var(--accent);"></i> Traffic Overview (Last 7 Days)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="visitsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Visitors Table -->
+                <div class="glass-card">
+                    <div class="table-controls">
+                        <h3><i class="fas fa-users-viewfinder" style="color: var(--purple);"></i> Recent Activity</h3>
+                        <div style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                            <input type="text" id="countryFilter" class="filter-input" style="padding-left: 2.5rem;" placeholder="Filter by Country...">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>IP Address</th>
+                                    <th>Location</th>
+                                    <th>System</th>
+                                    <th>Browser</th>
+                                </tr>
+                            </thead>
+                            <tbody id="visitorsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Extract Key from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiKey = urlParams.get('key');
+        let visitorsData = [];
+        let visitsChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        async function initDashboard() {
+            try {
+                if (!apiKey) throw new Error('Security Key Missing');
+
+                const response = await fetch(`/api/analytics?key=${apiKey}`);
+                if (!response.ok) throw new Error('Unauthorized Access or API Error');
+                
+                visitorsData = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboardApp').style.display = 'block';
+                
+                processStats();
+                renderChart();
+                renderTable(visitorsData);
+
+                // Setup Filter Event
+                document.getElementById('countryFilter').addEventListener('input', (e) => {
+                    const filterValue = e.target.value.toLowerCase();
+                    const filtered = visitorsData.filter(v => v.country.toLowerCase().includes(filterValue));
+                    renderTable(filtered);
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').style.display = 'none';
+                const statusEl = document.getElementById('status');
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = `<i class="fas fa-shield-alt" style="font-size: 2rem; display:block; margin-bottom:10px;"></i> Access Denied: ${error.message}`;
+            }
+        }
+
+        function processStats() {
+            // Total
+            document.getElementById('totalVisits').innerText = visitorsData.length.toLocaleString();
+
+            // Today
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayCount = visitorsData.filter(v => decodeDate(v.timestamp) === todayStr).length;
+            document.getElementById('todayVisits').innerText = todayCount.toLocaleString();
+
+            // Top Country Tracking
+            const countryCounts = {};
+            visitorsData.forEach(v => {
+                countryCounts[v.country] = (countryCounts[v.country] || 0) + 1;
+            });
+            let topCountry = 'Unknown';
+            let maxCount = 0;
+            
+            for (const [country, count] of Object.entries(countryCounts)) {
+                if (count > maxCount && country !== 'Unknown' && country !== 'Localhost') {
+                    maxCount = count;
+                    topCountry = country;
+                }
+            }
+            
+            // Limit text length in case of long region names
+            if (topCountry.length > 12) {
+                topCountry = topCountry.substring(0, 10) + '..';
+            }
+            document.getElementById('topCountry').innerText = topCountry;
+        }
+
+        // Handle ISO slicing uniformly
+        function decodeDate(isoString) {
+            if (!isoString) return '';
+            return isoString.split('T')[0];
+        }
+
+        function renderChart() {
+            const daysMap = {};
+            const labelsMap = {};
+            
+            // Init last 7 days including today
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const isoDate = d.toISOString().split('T')[0];
+                daysMap[isoDate] = 0;
+                labelsMap[isoDate] = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+
+            visitorsData.forEach(v => {
+                const day = decodeDate(v.timestamp);
+                if (daysMap[day] !== undefined) {
+                    daysMap[day]++;
+                }
+            });
+
+            const keys = Object.keys(daysMap);
+            const dataValues = keys.map(k => daysMap[k]);
+            const labels = keys.map(k => labelsMap[k]);
+
+            const ctx = document.getElementById('visitsChart').getContext('2d');
+            
+            // Build dynamic gradient
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
+            gradient.addColorStop(1, 'rgba(56, 189, 248, 0.05)');
+
+            if (visitsChartInstance) visitsChartInstance.destroy();
+
+            visitsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Unique Visits',
+                        data: dataValues,
+                        backgroundColor: gradient,
+                        borderColor: '#38bdf8',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#38bdf8',
+                        pointBorderColor: '#0f172a',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4 // curve it perfectly
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#64748b', 
+                                stepSize: 1,
+                                font: { family: 'Inter' }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)', borderDash: [5, 5] }
+                        },
+                        x: {
+                            ticks: { color: '#64748b', font: { family: 'Inter' } },
+                            grid: { display: false }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                }
+            });
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('visitorsTableBody');
+            tbody.innerHTML = '';
+            
+            // Reverse chronological order
+            const sortedData = [...data].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            // Limit rows for DOM performance
+            const displayData = sortedData.slice(0, 100);
+
+            if (displayData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display:block; opacity: 0.5;"></i>
+                            No visitors matches the criteria yet.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            displayData.forEach(v => {
+                const isMobile = v.deviceType.toLowerCase() === 'mobile' || v.deviceType.toLowerCase() === 'tablet';
+                const deviceClass = isMobile ? 'device-mobile' : 'device-desktop';
+                const deviceIcon = isMobile ? 'fa-mobile-screen-button' : 'fa-laptop';
+
+                // Fancy Timestamp Formatting
+                const dateObj = new Date(v.timestamp);
+                const timeString = dateObj.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+                const dateString = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                
+                const locationHtml = v.city && v.city !== 'Unknown' 
+                    ? `<i class="fas fa-map-pin" style="color: var(--danger); opacity: 0.7; margin-right: 6px;"></i> ${v.city}, <span style="color: var(--text-muted);">${v.country}</span>` 
+                    : `<i class="fas fa-globe" style="color: var(--danger); opacity: 0.7; margin-right: 6px;"></i> ${v.country}`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <span style="color: var(--text-main); font-weight: 500;">${dateString}</span>
+                        <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 8px;">${timeString}</span>
+                    </td>
+                    <td style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: var(--accent); font-size: 0.9rem;">${v.ip}</td>
+                    <td>${locationHtml}</td>
+                    <td><span class="badge ${deviceClass}"><i class="fas ${deviceIcon}"></i> ${v.deviceType}</span></td>
+                    <td style="opacity: 0.9;"><i class="fab fa-${getBrowserIcon(v.browserName)}" style="margin-right:6px; opacity:0.7;"></i> ${v.browserName}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Simple helper to match fontawesome icons with browser names
+        function getBrowserIcon(browser) {
+            const b = browser.toLowerCase();
+            if (b.includes('chrome')) return 'chrome';
+            if (b.includes('firefox')) return 'firefox';
+            if (b.includes('safari')) return 'safari';
+            if (b.includes('edge')) return 'edge';
+            if (b.includes('opera')) return 'opera';
+            return 'internet-explorer'; // fallback generic icon
+        }
+    </script>
+</body>
+</html>

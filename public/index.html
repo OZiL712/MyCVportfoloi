@@ -1,0 +1,264 @@
+<!-- @format -->
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amro Alshurafy | عمرو خالد الشرافي - مبرمج ومطور</title>
+    <!-- SEO Best Practices for Google Ranking -->
+    <meta name="description" content="الموقع الرسمي للمطور عمرو خالد الشرافي (Amro Alshurafy). مطور تطبيقات ويب وفلاتر (Flutter Developer) مهتم ببناء حلول رقمية حديثة وسهلة الاستخدام." />
+    <meta name="keywords" content="Amro Alshurafy, عمرو الشرافي, عمرو خالد الشرافي, مطور تطبيقات, مطور ويب, مبرمج يمني, Flutter Developer, Web Developer, Shabwah University" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Amro Alshurafy" />
+    <!-- Open Graph for Social Media & Google -->
+    <meta property="og:title" content="Amro Alshurafy | عمرو خالد الشرافي" />
+    <meta property="og:description" content="مطور ويب وتطبيقات (Flutter) متخصص في الحلول الرقمية، تصفح أعمالي ومشاريعي." />
+    <meta property="og:type" content="website" />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    </script>
+  </head>
+
+  <body>
+    <!-- Background Glows for Cinematic Feel -->
+    <div class="bg-glow glow-blue-1"></div>
+    <div class="bg-glow glow-blue-2"></div>
+
+    <!-- Top Navigation -->
+    <header class="glass-header">
+      <div class="nav-container" dir="ltr">
+        <!-- Ensure logo is left and nav is right -->
+        <div class="logo-area">
+          <span class="logo-name" translate="no">Amro Alshurafy</span>
+        </div>
+        <nav class="nav-links">
+          <a href="#about" translate="no">About</a>
+          <a href="#skills" translate="no">Skills</a>
+          <a href="#projects" translate="no">Projects</a>
+          <a href="#contact" translate="no">Contact</a>
+        </nav>
+        <div class="header-actions">
+          <button
+            id="theme-toggle"
+            class="theme-toggle-btn"
+            aria-label="Toggle Theme"
+          >
+            <i class="fas fa-moon"></i>
+          </button>
+          <div class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section id="hero" class="hero-section">
+        <div class="hero-content-wrapper fade-in animation-delay-1">
+          <div class="hero-image-container">
+            <img
+              src="images/profile.jpeg"
+              alt="Amro Alshurafy Profile"
+              class="hero-profile-img"
+            />
+          </div>
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span class="status-dot"></span>
+              <span translate="no">Available for Work</span>
+            </div>
+            <div class="hero-names">
+              <h1 class="hero-title" translate="yes">عمرو خالد الشرافي</h1>
+              <h1 class="hero-title-en" translate="no">Amro Alshurafy</h1>
+            </div>
+            <h2 class="hero-headline">
+              <span translate="no"
+                >IT Student at Shabwah University | Flutter & Web
+                Developer.</span
+              >
+            </h2>
+            <div class="hero-location" translate="no">
+              <i class="fas fa-map-marker-alt"></i> <span>Yemen 📍</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="section fade-in animation-delay-2">
+        <h2 class="section-title">About <span class="accent-text">Me</span></h2>
+        <div class="card glass-card">
+          <p class="about-text" translate="yes">
+            مطور ويب وتطبيقات مهتم ببناء حلول رقمية حديثة وسهلة الاستخدام. أعمل
+            على تطوير تطبيقات الموبايل باستخدام
+            <span translate="no" class="tech-tag">Flutter</span> وتطوير واجهات
+            الويب. أركز على كتابة كود منظم وتقديم تجربة مستخدم فعالة.
+          </p>
+        </div>
+      </section>
+
+      <!-- Skills Section -->
+      <section id="skills" class="section fade-in animation-delay-3" dir="ltr">
+        <!-- Force LTR on skills grid so they display nicely -->
+        <h2 class="section-title" dir="rtl">
+          My <span class="accent-text">Skills</span>
+        </h2>
+        <div class="skills-grid">
+          <!-- Applied translate="no" to all skill tags -->
+          <div class="skill-tag" translate="no">
+            <i class="fab fa-flutter skill-icon"></i> Flutter
+          </div>
+          <div class="skill-tag" translate="no">
+            <i class="fab fa-dart skill-icon" style="color: #00b4ab"></i> Dart
+          </div>
+          <!-- Fa don't have dart sometimes, but we can use generic or customized -->
+          <div class="skill-tag" translate="no">
+            <i class="fab fa-js skill-icon"></i> JavaScript
+          </div>
+          <div class="skill-tag" translate="no">
+            <i class="fab fa-html5 skill-icon"></i> HTML
+          </div>
+          <div class="skill-tag" translate="no">
+            <i class="fab fa-css3-alt skill-icon"></i> CSS
+          </div>
+          <div class="skill-tag" translate="no">
+            <i class="fas fa-database skill-icon"></i> Firebase
+          </div>
+          <div class="skill-tag" translate="no">
+            <i class="fas fa-server skill-icon"></i> REST APIs
+          </div>
+          <div class="skill-tag" translate="no">
+            <i class="fab fa-git-alt skill-icon"></i> Git & GitHub
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects Section -->
+      <section
+        id="projects"
+        class="section fade-in animation-delay-4"
+        dir="ltr"
+      >
+        <h2 class="section-title" dir="rtl">
+          Featured <span class="accent-text">Projects</span>
+        </h2>
+        <div id="github-projects" class="projects-grid">
+          <!-- Projects will be injected here by JS -->
+          <div class="loader">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="section fade-in animation-delay-5" dir="ltr">
+        <h2 class="section-title" dir="rtl">
+          Get in <span class="accent-text">Touch</span>
+        </h2>
+        <div class="contact-container">
+          <div class="contact-info">
+            <p class="contact-desc">
+              Feel free to reach out for collaborations or just a friendly
+              hello!
+            </p>
+            <div class="contact-method">
+              <i class="fas fa-envelope"></i>
+              <a href="mailto:amroalshurafy@gmail.com" translate="no"
+                >amroalshurafy@gmail.com</a
+              >
+            </div>
+          </div>
+          <!-- Formspree form -->
+          <form
+            action="https://formspree.io/f/amroalshurafy@gmail.com"
+            method="POST"
+            class="contact-form glass-card"
+          >
+            <div class="form-group">
+              <label for="name" translate="no">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                placeholder="Your Name"
+                translate="no"
+              />
+            </div>
+            <div class="form-group">
+              <label for="email" translate="no">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                placeholder="Your Email"
+                translate="no"
+              />
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea
+                id="message"
+                name="message"
+                required
+                placeholder="How can I help you?"
+              ></textarea>
+            </div>
+            <button type="submit" class="submit-btn" translate="no">
+              Send Message <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer glass-footer" dir="ltr">
+      <div class="footer-content">
+        <p class="copyright" translate="no">
+          &copy; 2026 Amro Alshurafy. All rights reserved.
+        </p>
+        <div class="social-links">
+          <a
+            href="https://github.com/OZiL712"
+            target="_blank"
+            aria-label="GitHub"
+            translate="no"
+            ><i class="fab fa-github"></i
+          ></a>
+          <a
+            href="https://instagram.com/4o7.x"
+            target="_blank"
+            aria-label="Instagram"
+            translate="no"
+            ><i class="fab fa-instagram"></i
+          ></a>
+          <a
+            href="mailto:amroalshurafy@gmail.com"
+            aria-label="Email"
+            translate="no"
+            ><i class="fas fa-envelope"></i
+          ></a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
