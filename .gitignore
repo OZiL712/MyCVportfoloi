@@ -1,4 +1,11 @@
+# Node modules
 node_modules/
+node_modules
+
+# Secrets
 serviceAccountKey.json
 visitors.json
+
+# Environment files
+.env
 .DS_Store
