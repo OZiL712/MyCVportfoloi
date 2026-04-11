@@ -3,15 +3,41 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const UAParser = require('ua-parser-js');
-const app = express();
 
+let admin = null;
+try {
+    admin = require('firebase-admin');
+} catch (e) {
+    console.log("⏳ جاري تثبيت حزم Firebase، الخادم سيعمل دونه حالياً...");
+}
+
+const app = express();
 const PORT = process.env.PORT || 3000;
+
 // Use /tmp for Vercel because its root filesystem is Read-Only
 const DB_FILE = process.env.VERCEL ? '/tmp/visitors.json' : path.join(__dirname, 'visitors.json');
 const ADMIN_SECRET_PATH = '/admin-secret-123';
 const ADMIN_SECRET_KEY = 'MY_SECRET_KEY';
 
-// Initialize the Database File if it doesn't exist
+// --- Firebase Initialization ---
+let db = null;
+try {
+    if (admin) {
+        const serviceAccount = require('./serviceAccountKey.json');
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        db = admin.firestore();
+        console.log("✅ اتصل بقاعدة بيانات Firebase بنجاح (Firestore)!");
+    }
+} catch (error) {
+    if (admin) {
+        console.log("⚠️ لم يتم العثور على 'serviceAccountKey.json' أو فشل تسجيل الدخول لـ Firebase.");
+        console.log("⚠️ سيتم استخدام visitors.json المحلي كبديل مؤقت لحين إضافة الملف.");
+    }
+}
+
+// Initialize the Database File if it doesn't exist (Fallback)
 if (!fs.existsSync(DB_FILE)) {
     fs.writeFileSync(DB_FILE, JSON.stringify([]));
 }
@@ -39,22 +65,17 @@ app.use(async (req, res, next) => {
     if (req.path === '/' || req.path === '/index.html') {
         let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
         
-        // Clean IP if it contains multiple via proxies
         if (ip && ip.includes(',')) ip = ip.split(',')[0].trim();
-        // Convert IPv6 localhost to IPv4 for easier readability/testing
         if (ip === '::1' || ip === '::ffff:127.0.0.1') ip = '127.0.0.1';
 
-        // Parse User Agent
         const parser = new UAParser(req.headers['user-agent']);
         const result = parser.getResult();
-        const deviceType = result.device.type || 'desktop'; // ua-parser returns undefined for desktops usually
+        const deviceType = result.device.type || 'desktop'; 
         const browserName = result.browser.name || 'Unknown';
 
-        // Fetch Geolocation
         let country = 'Unknown';
         let city = 'Unknown';
         
-        // ip-api might ignore/error on localhost IP, so handle gracefully
         if (ip !== '127.0.0.1') {
             const geoData = await getGeo(ip);
             if (geoData.status === 'success') {
@@ -75,25 +96,26 @@ app.use(async (req, res, next) => {
             timestamp: new Date().toISOString()
         };
 
-        // Async write to JSON without blocking the request
-        fs.readFile(DB_FILE, (err, data) => {
-            if (!err) {
-                try {
-                    const visitors = JSON.parse(data);
-                    visitors.push(visitData);
-                    fs.writeFile(DB_FILE, JSON.stringify(visitors, null, 2), () => {});
-                } catch (e) {
-                    console.error("Failed to parse DB:", e);
+        // --- Store to Firebase if available, otherwise local file ---
+        if (db) {
+            db.collection('visitors').add(visitData).catch(e => console.error("Firebase write error:", e));
+        } else {
+            fs.readFile(DB_FILE, (err, data) => {
+                if (!err) {
+                    try {
+                        const visitors = JSON.parse(data);
+                        visitors.push(visitData);
+                        fs.writeFile(DB_FILE, JSON.stringify(visitors, null, 2), () => {});
+                    } catch (e) {}
                 }
-            }
-        });
+            });
+        }
     }
     next();
 });
 
 // 2. Secret Admin Dashboard Serving Route
 app.get(ADMIN_SECRET_PATH, (req, res) => {
-    // Enforce Secret Key Query Parameter
     if (req.query.key !== ADMIN_SECRET_KEY) {
         return res.status(403).send(`
             <h1 style="text-align: center; font-family: sans-serif; margin-top: 50px;">
@@ -105,21 +127,33 @@ app.get(ADMIN_SECRET_PATH, (req, res) => {
 });
 
 // 3. Admin Analytics API Route (Used by dashboard)
-app.get('/api/analytics', (req, res) => {
-    // Protect the API as well
+app.get('/api/analytics', async (req, res) => {
     if (req.query.key !== ADMIN_SECRET_KEY) {
         return res.status(403).json({ error: 'Unauthorized' });
     }
     
-    fs.readFile(DB_FILE, (err, data) => {
-        if (err) return res.status(500).json({ error: 'Database read error' });
+    // --- Read from Firebase if available, otherwise local file ---
+    if (db) {
         try {
+            const snapshot = await db.collection('visitors').orderBy('timestamp', 'desc').get();
+            const visitors = [];
+            snapshot.forEach(doc => visitors.push(doc.data()));
             res.setHeader('Content-Type', 'application/json');
-            res.send(data);
-        } catch (e) {
-            res.status(500).json({ error: 'Database parse error' });
+            res.json(visitors);
+        } catch (error) {
+           res.status(500).json({ error: 'Firebase read error' });
         }
-    });
+    } else {
+        fs.readFile(DB_FILE, (err, data) => {
+            if (err) return res.status(500).json({ error: 'Database read error' });
+            try {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(data);
+            } catch (e) {
+                res.status(500).json({ error: 'Database parse error' });
+            }
+        });
+    }
 });
 
 // Explicit Home Route for Vercel

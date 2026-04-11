@@ -85,7 +85,7 @@
         <div class="hero-content-wrapper fade-in animation-delay-1">
           <div class="hero-image-container">
             <img
-              src="images/profile.jpeg"
+              src="images/amro.jpg"
               alt="Amro Alshurafy Profile"
               class="hero-profile-img"
             />
@@ -196,47 +196,62 @@
               >
             </div>
           </div>
-          <!-- Formspree form -->
-          <form
-            action="https://formspree.io/f/amroalshurafy@gmail.com"
-            method="POST"
-            class="contact-form glass-card"
-          >
-            <div class="form-group">
-              <label for="name" translate="no">Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                placeholder="Your Name"
-                translate="no"
-              />
-            </div>
-            <div class="form-group">
-              <label for="email" translate="no">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                placeholder="Your Email"
-                translate="no"
-              />
-            </div>
+          <!-- Contact direct actions -->
+          <div class="contact-form glass-card" id="contactForm">
             <div class="form-group">
               <label for="message">Message</label>
               <textarea
                 id="message"
                 name="message"
                 required
-                placeholder="How can I help you?"
+                placeholder="How can I help you? / اكتب رسالتك هنا..."
+                rows="6"
               ></textarea>
             </div>
-            <button type="submit" class="submit-btn" translate="no">
-              Send Message <i class="fas fa-paper-plane"></i>
-            </button>
-          </form>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap">
+              <button
+                onclick="sendViaWhatsApp()"
+                class="submit-btn"
+                style="flex: 1; background: #25d366; color: white; border: none"
+                translate="no"
+              >
+                WhatsApp <i class="fab fa-whatsapp"></i>
+              </button>
+              <button
+                onclick="sendViaEmail()"
+                class="submit-btn"
+                style="flex: 1"
+                translate="no"
+              >
+                Email <i class="fas fa-envelope"></i>
+              </button>
+            </div>
+          </div>
+
+          <script>
+            function sendViaWhatsApp() {
+              const msg = document.getElementById("message").value;
+              if (!msg.trim()) {
+                alert(
+                  "Please write a message first. الرجاء كتابة رسالة أولاً.",
+                );
+                return;
+              }
+              const url = `https://wa.me/967779167668?text=${encodeURIComponent(msg)}`;
+              window.open(url, "_blank");
+            }
+            function sendViaEmail() {
+              const msg = document.getElementById("message").value;
+              if (!msg.trim()) {
+                alert(
+                  "Please write a message first. الرجاء كتابة رسالة أولاً.",
+                );
+                return;
+              }
+              const url = `mailto:amroalshurafy@gmail.com?subject=Contact from Portfolio&body=${encodeURIComponent(msg)}`;
+              window.open(url, "_self");
+            }
+          </script>
         </div>
       </section>
     </main>

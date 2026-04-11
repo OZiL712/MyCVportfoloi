@@ -576,10 +576,10 @@ main {
 .contact-form textarea {
     width: 100%;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-color);
+    border: 1px solid var(--card-border);
     border-radius: 8px;
-    color: #fff;
+    color: var(--text-primary);
     font-family: var(--font-sans);
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -590,7 +590,6 @@ main {
     outline: none;
     border-color: var(--accent-blue);
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .contact-form textarea {
@@ -727,12 +726,13 @@ main {
         top: 70px;
         left: 0;
         width: 100%;
-        background: rgba(15, 15, 15, 0.95);
+        background: var(--bg-color);
         backdrop-filter: blur(10px);
         flex-direction: column;
         padding: 2rem;
         gap: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--card-border);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     }
 
     .nav-links.active {
