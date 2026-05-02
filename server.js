@@ -23,7 +23,15 @@ const ADMIN_SECRET_KEY = 'MY_SECRET_KEY';
 let db = null;
 try {
     if (admin) {
-        const serviceAccount = require('./serviceAccountKey.json');
+        let serviceAccount;
+        if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+            // Load from Vercel Environment Variable
+            serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        } else {
+            // Load from local file
+            serviceAccount = require('./serviceAccountKey.json');
+        }
+        
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount)
         });
