@@ -530,8 +530,29 @@
             const tbody = document.getElementById('visitorsTableBody');
             tbody.innerHTML = '';
             
+            // Group data by IP + Device + Browser
+            const groupedDataMap = new Map();
+            
+            data.forEach(v => {
+                const key = `${v.ip}_${v.deviceType}_${v.browserName}`;
+                if (!groupedDataMap.has(key)) {
+                    groupedDataMap.set(key, { ...v, visitsCount: 1 });
+                } else {
+                    const existing = groupedDataMap.get(key);
+                    existing.visitsCount += 1;
+                    // Update timestamp if this visit is newer
+                    if (new Date(v.timestamp) > new Date(existing.timestamp)) {
+                        existing.timestamp = v.timestamp;
+                        existing.city = v.city;
+                        existing.country = v.country;
+                    }
+                }
+            });
+            
+            const groupedData = Array.from(groupedDataMap.values());
+
             // Reverse chronological order
-            const sortedData = [...data].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const sortedData = groupedData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             // Limit rows for DOM performance
             const displayData = sortedData.slice(0, 100);
 
@@ -561,11 +582,16 @@
                     ? `<i class="fas fa-map-pin" style="color: var(--danger); opacity: 0.7; margin-right: 6px;"></i> ${v.city}, <span style="color: var(--text-muted);">${v.country}</span>` 
                     : `<i class="fas fa-globe" style="color: var(--danger); opacity: 0.7; margin-right: 6px;"></i> ${v.country}`;
 
+                const visitsBadge = v.visitsCount > 1 
+                    ? `<span style="background: rgba(56, 189, 248, 0.2); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; margin-left: 10px; font-weight: bold;"><i class="fas fa-repeat" style="font-size: 0.6rem; margin-right: 3px;"></i>${v.visitsCount} Visits</span>` 
+                    : '';
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>
                         <span style="color: var(--text-main); font-weight: 500;">${dateString}</span>
                         <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 8px;">${timeString}</span>
+                        ${visitsBadge}
                     </td>
                     <td style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: var(--accent); font-size: 0.9rem;">${v.ip}</td>
                     <td>${locationHtml}</td>
